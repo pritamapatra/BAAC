@@ -1,0 +1,17 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1200" height="600" fill="#D1D5DB"/>
+<g clip-path="url(#clip0_1_2)">
+<rect x="-100" y="-100" width="1400" height="800" fill="#9CA3AF"/>
+<circle cx="600" cy="300" r="250" fill="#E5E7EB"/>
+<path d="M600 50L500 200L700 200L600 50Z" fill="#FCD34D"/>
+<path d="M600 550L500 400L700 400L600 550Z" fill="#FCD34D"/>
+<rect x="550" y="150" width="100" height="300" fill="#FCD34D"/>
+<rect x="450" y="250" width="300" height="100" fill="#FCD34D"/>
+<circle cx="600" cy="300" r="50" fill="#FBBF24"/>
+</g>
+<defs>
+<clipPath id="clip0_1_2">
+<rect width="1200" height="600" fill="white"/>
+</clipPath>
+</defs>
+</svg>
