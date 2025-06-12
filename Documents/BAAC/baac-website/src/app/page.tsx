@@ -5,13 +5,17 @@ import { useState, useEffect, useRef } from 'react';
 import Image from "next/image";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import EventList from "./components/events/EventList";
+import QuestionForm from "./components/qna/QuestionForm";
+import QuestionList from "./components/qna/QuestionList";
 
 export default function Home() {
   const [sectionsVisible, setSectionsVisible] = useState({
     spiritual: false,
     resources: false,
     events: false,
-    map: false
+    map: false,
+    qna: false
   });
   const [heroContentVisible, setHeroContentVisible] = useState(false);
 
@@ -19,6 +23,7 @@ export default function Home() {
   const resourcesRef = useRef(null);
   const eventsRef = useRef(null);
   const mapRef = useRef(null);
+  const qnaRef = useRef(null);
 
   useEffect(() => {
     setHeroContentVisible(true);
@@ -34,7 +39,7 @@ export default function Home() {
       { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     );
 
-    [spiritualRef, resourcesRef, eventsRef, mapRef].forEach(ref => {
+    [spiritualRef, resourcesRef, eventsRef, mapRef, qnaRef].forEach(ref => {
       if (ref.current) observer.observe(ref.current);
     });
 
@@ -126,17 +131,22 @@ export default function Home() {
       >
         <div className="container mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8 text-center">Events Gallery</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <Image src="/event-1.jpg" alt="Event 1" width={400} height={225} className="w-full h-auto object-cover" />
-            </div>
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <Image src="/event-2.jpg" alt="Event 2" width={400} height={225} className="w-full h-auto object-cover" />
-            </div>
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <Image src="/event-3.jpg" alt="Event 3" width={400} height={225} className="w-full h-auto object-cover" />
-            </div>
-          </div>
+          <EventList />
+        </div>
+      </section>
+
+      {/* Q&A Section */}
+      <section
+        ref={qnaRef}
+        data-section="qna"
+        className={`py-10 md:py-16 bg-gray-100 transition-all duration-500 ease-out ${
+          sectionsVisible.qna ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+        }`}
+      >
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8 text-center">Public Q&A</h2>
+          <QuestionForm />
+          <QuestionList />
         </div>
       </section>
 

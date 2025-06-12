@@ -38,6 +38,7 @@ export default function Navbar() {
             <li><Link href="/#spiritual-videos" className="text-gray-600 hover:text-orange-500">Spiritual Videos</Link></li>
             <li><Link href="/#resources" className="text-gray-600 hover:text-orange-500">Resources</Link></li>
             <li><Link href="/#events" className="text-gray-600 hover:text-orange-500">Events</Link></li>
+            <li><Link href="/#qna" className="text-gray-600 hover:text-gray-900 transition duration-300">Q&A</Link></li>
             <li><Link href="/#contact" className="text-gray-600 hover:text-orange-500">Contact</Link></li>
             <li className="py-2">
               <SignedIn>
