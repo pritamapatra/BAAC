@@ -20,7 +20,7 @@ export const quizzes = pgTable('quizzes', {
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}));
 
 export const eventRegistrations = pgTable('event_registrations', {
   id: serial('id').primaryKey(),
@@ -66,6 +66,44 @@ export const qnaAnswers = pgTable('qna_answers', {
   adminId: varchar('admin_id', { length: 256 }).references(() => users.clerkId).notNull(), // Assuming admin is also a user
   answerText: text('answer_text').notNull(),
   answeredAt: timestamp('answered_at').defaultNow().notNull(),
+});
+
+export const events = pgTable('events', {
+  id: serial('id').primaryKey(),
+  title: varchar('title', { length: 256 }).notNull(),
+  description: text('description'),
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time').notNull(),
+  attendanceStartTime: timestamp('attendance_start_time'),
+  attendanceEndTime: timestamp('attendance_end_time'),
+  qrCode: text('qr_code'), // Optional QR code auto-generated
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const eventImages = pgTable('event_images', {
+  id: serial('id').primaryKey(),
+  eventId: integer('event_id').references(() => events.id),
+  imageUrl: text('image_url').notNull(),
+  uploadedAt: timestamp('uploaded_at').defaultNow().notNull(),
+});
+
+export const questions = pgTable('questions', {
+  id: serial('id').primaryKey(),
+  quizId: integer('quiz_id').references(() => quizzes.id).notNull(),
+  questionText: text('question_text').notNull(),
+  options: text('options').notNull(), // Store as JSON string or array of strings
+  correctAnswer: varchar('correct_answer', { length: 256 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const quizSubmissions = pgTable('quiz_submissions', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id', { length: 256 }).references(() => users.clerkId).notNull(),
+  quizId: integer('quiz_id').references(() => quizzes.id).notNull(),
+  score: integer('score').notNull(),
+  submittedAt: timestamp('submitted_at').defaultNow().notNull(),
 });
 
 import { relations } from 'drizzle-orm';
@@ -160,42 +198,4 @@ export const qnaAnswerRelations = relations(qnaAnswers, ({ one }) => ({
     fields: [qnaAnswers.adminId],
     references: [users.clerkId],
   }),
-}));
-
-export const eventImages = pgTable('event_images', {
-  id: serial('id').primaryKey(),
-  eventId: integer('event_id').references(() => events.id),
-  imageUrl: text('image_url').notNull(),
-  uploadedAt: timestamp('uploaded_at').defaultNow().notNull(),
-});
-
-export const quizSubmissions = pgTable('quiz_submissions', {
-  id: serial('id').primaryKey(),
-  userId: varchar('user_id', { length: 256 }).references(() => users.clerkId).notNull(),
-  quizId: integer('quiz_id').references(() => quizzes.id).notNull(),
-  score: integer('score').notNull(),
-  submittedAt: timestamp('submitted_at').defaultNow().notNull(),
-});
-
-export const events = pgTable('events', {
-  id: serial('id').primaryKey(),
-  title: varchar('title', { length: 256 }).notNull(),
-  description: text('description'),
-  startTime: timestamp('start_time').notNull(),
-  endTime: timestamp('end_time').notNull(),
-  attendanceStartTime: timestamp('attendance_start_time'),
-  attendanceEndTime: timestamp('attendance_end_time'),
-  qrCode: text('qr_code'), // Optional QR code auto-generated
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-export const questions = pgTable('questions', {
-  id: serial('id').primaryKey(),
-  quizId: integer('quiz_id').references(() => quizzes.id).notNull(),
-  questionText: text('question_text').notNull(),
-  options: text('options').notNull(), // Store as JSON string or array of strings
-  correctAnswer: varchar('correct_answer', { length: 256 }).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

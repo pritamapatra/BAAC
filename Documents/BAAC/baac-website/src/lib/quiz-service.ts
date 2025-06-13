@@ -1,6 +1,6 @@
 import { db } from './db';
-import { quizzes, questions } from '../drizzle/schema';
-import { eq, and, gte, lte } from 'drizzle-orm';
+import { quizzes, questions, quizSubmissions, users } from '../drizzle/schema';
+import { eq, and, gte, lte, desc, asc } from 'drizzle-orm';
 
 export async function createQuiz(title: string, description: string, startDate: Date, endDate: Date) {
   const [newQuiz] = await db.insert(quizzes).values({
@@ -55,6 +55,62 @@ export async function deleteQuestion(id: number) {
 
 export async function getCurrentActiveQuiz() {
   const now = new Date();
-  const quiz = await db.select().from(quizzes).where(and(eq(quizzes.isActive, true), gte(quizzes.startDate, now), lte(quizzes.endDate, now)));
+  const quiz = await db.select().from(quizzes).where(and(eq(quizzes.isActive, true), lte(quizzes.startDate, now), gte(quizzes.endDate, now)));
   return quiz.length > 0 ? quiz[0] : null;
+}
+
+export async function getQuizLeaderboard(quizId: number) {
+  const leaderboard = await db.select({
+    userId: quizSubmissions.userId,
+    score: quizSubmissions.score,
+    submittedAt: quizSubmissions.submittedAt,
+    username: users.username, // Assuming users table is joined for username
+  })
+  .from(quizSubmissions)
+  .leftJoin(users, eq(quizSubmissions.userId, users.clerkId))
+  .where(eq(quizSubmissions.quizId, quizId))
+  .orderBy(desc(quizSubmissions.score), asc(quizSubmissions.submittedAt));
+
+  // Group by userId to get the highest score for each user
+  const userScores: { [key: string]: { score: number, submittedAt: Date, username: string } } = {};
+  leaderboard.forEach(submission => {
+    if (!userScores[submission.userId] || submission.score > userScores[submission.userId].score) {
+      userScores[submission.userId] = { score: submission.score, submittedAt: submission.submittedAt, username: submission.username };
+    } else if (submission.score === userScores[submission.userId].score && submission.submittedAt < userScores[submission.userId].submittedAt) {
+      // If scores are equal, keep the earlier submission
+      userScores[submission.userId] = { score: submission.score, submittedAt: submission.submittedAt, username: submission.username };
+    }
+  });
+
+  // Convert back to array and sort for final leaderboard
+  const finalLeaderboard = Object.keys(userScores).map(userId => ({
+    userId,
+    score: userScores[userId].score,
+    submittedAt: userScores[userId].submittedAt,
+    username: userScores[userId].username,
+  }));
+
+  finalLeaderboard.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    } else {
+      return a.submittedAt.getTime() - b.submittedAt.getTime();
+    }
+  });
+
+  return finalLeaderboard;
+}
+
+export async function resetWeeklyQuiz() {
+  // Deactivate current active quiz
+  const currentActiveQuiz = await getCurrentActiveQuiz();
+  if (currentActiveQuiz) {
+    await updateQuiz(currentActiveQuiz.id, { isActive: false });
+  }
+
+  // Logic to create a new quiz or activate the next one
+  // For now, let's assume a new quiz needs to be created manually or via admin panel
+  // In a real-world scenario, this might involve fetching predefined quizzes or generating new ones
+  console.log('Weekly quiz reset initiated. Previous quiz deactivated.');
+  return { success: true, message: 'Weekly quiz reset initiated.' };
 }

@@ -1,42 +1,26 @@
 import { NextResponse } from 'next/server';
-import { addSewaPoints, getSewaPointsByUserId, getTotalSewaPointsByUserId, getLeaderboard } from '@/lib/sewa-points-service';
+import { db } from '@/drizzle/db';
+import { users } from '@/drizzle/schema';
+import { desc } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export async function GET() {
   try {
-    const { userId, points, activity } = await request.json();
-    if (!userId || !points || !activity) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-    const newSewaPoints = await addSewaPoints(userId, points, activity);
-    return NextResponse.json({ message: 'Sewa points added successfully', sewaPoints: newSewaPoints }, { status: 201 });
+    const result = await db.select({
+      id: users.id,
+      clerkId: users.clerkId,
+      username: users.username,
+      email: users.email,
+      isAdmin: users.isAdmin,
+      sewaPoints: users.sewaPoints,
+    })
+    .from(users)
+    .orderBy(desc(users.sewaPoints))
+    .limit(100);
+
+    return NextResponse.json(result);
   } catch (error) {
-    console.error('Error adding sewa points:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
-}
-
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const type = searchParams.get('type');
-
-    if (type === 'leaderboard') {
-      const leaderboard = await getLeaderboard();
-      return NextResponse.json({ leaderboard }, { status: 200 });
-    } else if (userId) {
-      if (type === 'total') {
-        const totalPoints = await getTotalSewaPointsByUserId(userId);
-        return NextResponse.json({ totalPoints }, { status: 200 });
-      } else {
-        const sewaPoints = await getSewaPointsByUserId(userId);
-        return NextResponse.json({ sewaPoints }, { status: 200 });
-      }
-    }
-
-    return NextResponse.json({ error: 'Missing userId or invalid type' }, { status: 400 });
-  } catch (error) {
-    console.error('Error fetching sewa points/leaderboard:', error);
+    console.error('Error fetching sewa points:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

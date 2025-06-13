@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from 'react';
 import Image from "next/image";
-import { SignInButton, SignedIn, SignedOut, UserButton /*, SignOutButton */ } from "@clerk/nextjs";
+import { SignInButton, SignedIn, SignedOut, UserButton, SignOutButton } from "@clerk/nextjs";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,6 +48,27 @@ export default function Navbar() {
               </SignedIn>
             </li>
             <li className="py-2">
+              <SignedIn>
+                <Link href="/admin" className="text-gray-600 hover:text-orange-500">
+                  Admin Dashboard
+                </Link>
+              </SignedIn>
+            </li>
+            <li className="py-2">
+              <SignedIn>
+                <Link href="/quiz" className="text-gray-600 hover:text-orange-500">
+                  Weekly Quiz
+                </Link>
+              </SignedIn>
+            </li>
+            <li className="py-2">
+              <SignedIn>
+                <Link href="/quiz/leaderboard" className="text-gray-600 hover:text-orange-500">
+                  Quiz Leaderboard
+                </Link>
+              </SignedIn>
+            </li>
+            <li className="py-2">
               <SignedOut>
                 <SignInButton mode="modal">
                   <button className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors duration-300">
@@ -59,13 +80,7 @@ export default function Navbar() {
                 <UserButton />
               </SignedIn>
             </li>
-            {/* <SignedIn>
-              <li>
-                <SignOutButton>
-                  <button className="text-gray-600 hover:text-blue-600">Logout</button>
-                </SignOutButton>
-              </li>
-            </SignedIn> */}
+
           </ul>
         </nav>
       </div>
